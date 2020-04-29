@@ -98,7 +98,7 @@ int    uts_numChildren_geo(Node * parent);
 int    uts_childType(Node *parent);
 
 /* Implementation Specific Functions */
-char * impl_getName();
+const char * impl_getName();
 int    impl_paramsToStr(char *strBuf, int ind);
 int    impl_parseParam(char *param, char *value);
 void   impl_helpMessage();
