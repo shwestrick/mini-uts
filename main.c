@@ -33,7 +33,7 @@ typedef struct {
   counter_t maxdepth, size, leaves;
 } Result;
 
-Result treeSearch(int depth, Node *parent) {
+Result treeSearch(UTSConfig *config, int depth, Node *parent) {
   int numChildren, childType;
   counter_t parentHeight = parent->height;
 
@@ -42,8 +42,8 @@ Result treeSearch(int depth, Node *parent) {
   r.size = 1;
   r.leaves = 0;
 
-  numChildren = uts_numChildren(parent);
-  childType   = uts_childType(parent);
+  numChildren = uts_numChildren(config, parent);
+  childType   = uts_childType(config, parent);
 
   // record number of children in parent
   parent->numChildren = numChildren;
@@ -57,10 +57,10 @@ Result treeSearch(int depth, Node *parent) {
       child.type = childType;
       child.height = parentHeight + 1;
       child.numChildren = -1;    // not yet determined
-      for (j = 0; j < computeGranularity; j++) {
+      for (j = 0; j < config->computeGranularity; j++) {
         rng_spawn(parent->state.state, child.state.state, i);
       }
-      Result c = treeSearch(depth+1, &child);
+      Result c = treeSearch(config, depth+1, &child);
 
       if (c.maxdepth > r.maxdepth) r.maxdepth = c.maxdepth;
       r.size += c.size;
@@ -77,20 +77,21 @@ Result treeSearch(int depth, Node *parent) {
 // ===========================================================================
 
 int main(int argc, char *argv[]) {
+  UTSConfig config;
   Node root;
   double t1, t2;
 
-  uts_parseParams(argc, argv);
-  uts_printParams();
-  uts_initRoot(&root, type);
+  uts_parseParams(&config, argc, argv);
+  uts_printParams(&config);
+  uts_initRoot(&config, &root);
 
   t1 = uts_wctime();
 
-  Result r = treeSearch(0, &root);
+  Result r = treeSearch(&config, 0, &root);
 
   t2 = uts_wctime();
 
-  uts_showStats(1, 0, t2-t1, r.size, r.leaves, r.maxdepth);
+  uts_showStats(&config, 1, 0, t2-t1, r.size, r.leaves, r.maxdepth);
 
   return 0;
 }
