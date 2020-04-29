@@ -1,3 +1,6 @@
-- replaced `char *` types of string constants to `const char *`
+- deleted many files!
+- added main.c which is mostly derived from the original uts_dfs.c
+- avoid compiler warnings: replaced `char *` types of string constants
+to `const char *`
 - eliminated most global state with an explicit UTSConfig struct that
 contains all parameters and is passed to uts_ functions as necessary.
