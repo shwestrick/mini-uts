@@ -25,15 +25,17 @@
  *  and their default values are given below.              *
  ***********************************************************/
 
-char * uts_trees_str[]     = { "Binomial", "Geometric", "Hybrid", "Balanced" };
-char * uts_geoshapes_str[] = { "Linear decrease", "Exponential decrease", "Cyclic", 
-                              "Fixed branching factor" };
+const char * uts_trees_str[] =
+  { "Binomial", "Geometric", "Hybrid", "Balanced" };
+const char * uts_geoshapes_str[] =
+  { "Linear decrease", "Exponential decrease",
+    "Cyclic", "Fixed branching factor" };
 
 /* Tree type
- *   Trees are generated using a Galton-Watson process, in 
- *   which the branching factor of each node is a random 
+ *   Trees are generated using a Galton-Watson process, in
+ *   which the branching factor of each node is a random
  *   variable.
- *   
+ *
  *   The random variable can follow a binomial distribution
  *   or a geometric distribution.  Hybrid tree are
  *   generated with geometric distributions near the
@@ -45,12 +47,12 @@ int   rootId = 0;   // default seed for RNG state at root
 
 /*  Tree type BIN (BINOMIAL)
  *  The branching factor at the root is specified by b_0.
- *  The branching factor below the root follows an 
+ *  The branching factor below the root follows an
  *     identical binomial distribution at all nodes.
- *  A node has m children with prob q, or no children with 
+ *  A node has m children with prob q, or no children with
  *     prob (1-q).  The expected branching factor is q * m.
  *
- *  Default parameter values 
+ *  Default parameter values
  */
 int    nonLeafBF   = 4;            // m
 double nonLeafProb = 15.0 / 64.0;  // q
@@ -66,17 +68,17 @@ double nonLeafProb = 15.0 / 64.0;  // q
  *  A shape function computes a target branching factor b_i
  *     for nodes at depth i as a function of the root branching
  *     factor b_0 and a maximum depth gen_mx.
- *   
+ *
  *  Default parameter values
  */
 int        gen_mx   = 6;      // default depth of tree
 geoshape_t shape_fn = LINEAR; // default shape function (b_i decr linearly)
 
 /*  In type HYBRID trees, each node is either type BIN or type
- *  GEO, with the generation strategy changing from GEO to BIN 
+ *  GEO, with the generation strategy changing from GEO to BIN
  *  at a fixed depth, expressed as a fraction of gen_mx
  */
-double shiftDepth = 0.5;         
+double shiftDepth = 0.5;
 
 /* compute granularity - number of rng evaluations per tree node */
 int computeGranularity = 1;
@@ -93,7 +95,7 @@ int verbose  = 1;
  ***********************************************************/
 
 /* fatal error */
-void uts_error(char *str) {
+void uts_error(const char *str) {
   printf("*** Error: %s\n", str);
   impl_abort(1);
 }
@@ -103,7 +105,7 @@ void uts_error(char *str) {
  *   for detailed accounting of work, this needs
  *   high resolution
  */
-#ifdef sgi  
+#ifdef sgi
 double uts_wctime() {
   timespec_t tv;
   double time;
@@ -146,7 +148,7 @@ void uts_initRoot(Node * root, int type) {
 
 int uts_numChildren_bin(Node * parent) {
   // distribution is identical everywhere below root
-  int    v = rng_rand(parent->state.state);	
+  int    v = rng_rand(parent->state.state);
   double d = rng_toProb(v);
 
   return (d < nonLeafProb) ? nonLeafBF : 0;
@@ -158,23 +160,23 @@ int uts_numChildren_geo(Node * parent) {
   int depth = parent->height;
   int numChildren, h;
   double p, u;
-  
+
   // use shape function to compute target b_i
   if (depth > 0){
     switch (shape_fn) {
-      
+
       // expected size polynomial in depth
     case EXPDEC:
       b_i = b_0 * pow((double) depth, -log(b_0)/log((double) gen_mx));
       break;
-      
+
       // cyclic tree size
     case CYCLIC:
       if (depth > 5 * gen_mx){
         b_i = 0.0;
         break;
-      } 
-      b_i = pow(b_0, 
+      }
+      b_i = pow(b_0,
                 sin(2.0*3.141592653589793*(double) depth / (double) gen_mx));
       break;
 
@@ -182,7 +184,7 @@ int uts_numChildren_geo(Node * parent) {
     case FIXED:
       b_i = (depth < gen_mx)? b_0 : 0;
       break;
-      
+
       // linear decrease in b_i
     case LINEAR:
     default:
@@ -191,7 +193,7 @@ int uts_numChildren_geo(Node * parent) {
     }
   }
 
-  // given target b_i, find prob p so expected value of 
+  // given target b_i, find prob p so expected value of
   // geometric distribution is b_i.
   p = 1.0 / (1.0 + b_i);
 
@@ -201,7 +203,7 @@ int uts_numChildren_geo(Node * parent) {
 
   // max number of children at this cumulative probability
   // (from inverse geometric cumulative density function)
-  numChildren = (int) floor(log(1 - u) / log(1 - p)); 
+  numChildren = (int) floor(log(1 - u) / log(1 - p));
 
   return numChildren;
 }
@@ -215,14 +217,14 @@ int uts_numChildren(Node *parent) {
     case BIN:
       if (parent->height == 0)
         numChildren = (int) floor(b_0);
-      else 
+      else
         numChildren = uts_numChildren_bin(parent);
       break;
-  
+
     case GEO:
       numChildren = uts_numChildren_geo(parent);
       break;
-    
+
     case HYBRID:
       if (parent->height < shiftDepth * gen_mx)
         numChildren = uts_numChildren_geo(parent);
@@ -236,7 +238,7 @@ int uts_numChildren(Node *parent) {
     default:
       uts_error("parTreeSearch(): Unknown tree type");
   }
-  
+
   // limit number of children
   // only a BIN root can have more than MAXNUMCHILDREN
   if (parent->height == 0 && parent->type == BIN) {
@@ -249,7 +251,7 @@ int uts_numChildren(Node *parent) {
   }
   else if (type != BALANCED) {
     if (numChildren > MAXNUMCHILDREN) {
-      printf("*** Number of children truncated from %d to %d\n", 
+      printf("*** Number of children truncated from %d to %d\n",
              numChildren, MAXNUMCHILDREN);
       numChildren = MAXNUMCHILDREN;
     }
@@ -268,7 +270,7 @@ int uts_childType(Node *parent) {
     case HYBRID:
       if (parent->height < shiftDepth * gen_mx)
         return GEO;
-      else 
+      else
         return BIN;
     case BALANCED:
       return BALANCED;
@@ -279,20 +281,20 @@ int uts_childType(Node *parent) {
 }
 
 
-// construct string with all parameter settings 
+// construct string with all parameter settings
 int uts_paramsToStr(char *strBuf, int ind) {
   // version + execution model
   ind += sprintf(strBuf+ind, "UTS - Unbalanced Tree Search %s (%s)\n", UTS_VERSION, impl_getName());
 
   // tree type
   ind += sprintf(strBuf+ind, "Tree type:  %d (%s)\n", type, uts_trees_str[type]);
-	
+
   // tree shape parameters
   ind += sprintf(strBuf+ind, "Tree shape parameters:\n");
   ind += sprintf(strBuf+ind, "  root branching factor b_0 = %.1f, root seed = %d\n", b_0, rootId);
-	
+
   if (type == GEO || type == HYBRID) {
-    ind += sprintf(strBuf+ind, "  GEO parameters: gen_mx = %d, shape function = %d (%s)\n", 
+    ind += sprintf(strBuf+ind, "  GEO parameters: gen_mx = %d, shape function = %d (%s)\n",
             gen_mx, shape_fn, uts_geoshapes_str[shape_fn]);
   }
 
@@ -305,17 +307,17 @@ int uts_paramsToStr(char *strBuf, int ind) {
   }
 
   if (type == HYBRID) {
-    ind += sprintf(strBuf+ind, "  HYBRID:  GEO from root to depth %d, then BIN\n", 
+    ind += sprintf(strBuf+ind, "  HYBRID:  GEO from root to depth %d, then BIN\n",
             (int) ceil(shiftDepth * gen_mx));
   }
-	
+
   if (type == BALANCED) {
     ind += sprintf(strBuf+ind, "  BALANCED parameters: gen_mx = %d\n", gen_mx);
     ind += sprintf(strBuf+ind, "        Expected size: %llu nodes, %llu leaves\n",
         (counter_t) ((pow(b_0, gen_mx+1) - 1.0)/(b_0 - 1.0)) /* geometric series */,
         (counter_t) pow(b_0, gen_mx));
   }
-	
+
   // random number generator
   ind += sprintf(strBuf+ind, "Random number generator: ");
   ind  = rng_showtype(strBuf, ind);
@@ -337,7 +339,7 @@ void uts_printParams() {
 }
 
 void uts_parseParams(int argc, char *argv[]){
-  int i = 1; 
+  int i = 1;
   int err = -1;
   while (i < argc && err == -1) {
     if (argv[i][0] == '-' && argv[i][1] == 'h') {
@@ -367,8 +369,8 @@ void uts_parseParams(int argc, char *argv[]){
       case 'v':
         verbose = atoi(argv[i+1]); break;
       case 't':
-        type = (tree_t) atoi(argv[i+1]); 
-        if (type != BIN && type != GEO && type!= HYBRID && type != BALANCED) 
+        type = (tree_t) atoi(argv[i+1]);
+        if (type != BIN && type != GEO && type!= HYBRID && type != BALANCED)
 	  err = i;
         break;
       case 'a':
@@ -402,7 +404,7 @@ void uts_parseParams(int argc, char *argv[]){
 void uts_helpMessage() {
   printf("  UTS - Unbalanced Tree Search %s (%s)\n\n", UTS_VERSION, impl_getName());
   printf("    usage:  uts-bin [parameter value] ...\n\n");
-  printf("  parm type  description\n");    
+  printf("  parm type  description\n");
   printf("  ==== ====  =========================================\n");
   printf("\n  Benchmark Parameters:\n");
   printf("   -t  int   tree type (0: BIN, 1: GEO, 2: HYBRID, 3: BALANCED)\n");
@@ -428,13 +430,13 @@ void uts_showStats(int nPes, int chunkSize, double walltime, counter_t nNodes, c
   // summarize execution info for machine consumption
   if (verbose == 0) {
     printf("%4d %7.3f %9llu %7.0llu %7.0llu %d %d %.2f %d %d %1d %f %3d\n",
-        nPes, walltime, nNodes, (long long)(nNodes/walltime), (long long)((nNodes/walltime)/nPes), chunkSize, 
+        nPes, walltime, nNodes, (long long)(nNodes/walltime), (long long)((nNodes/walltime)/nPes), chunkSize,
         type, b_0, rootId, gen_mx, shape_fn, nonLeafProb, nonLeafBF);
   }
 
   // summarize execution info for human consumption
   else {
-    printf("Tree size = %llu, tree depth = %llu, num leaves = %llu (%.2f%%)\n", nNodes, maxDepth, nLeaves, nLeaves/(float)nNodes*100.0); 
+    printf("Tree size = %llu, tree depth = %llu, num leaves = %llu (%.2f%%)\n", nNodes, maxDepth, nLeaves, nLeaves/(float)nNodes*100.0);
     printf("Wallclock time = %.3f sec, performance = %.0f nodes/sec (%.0f nodes/sec per PE)\n\n",
         walltime, (nNodes / walltime), (nNodes / walltime / nPes));
   }

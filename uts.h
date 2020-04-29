@@ -19,7 +19,7 @@ struct node_t {
   int type;          // distribution governing number of children
   int height;        // depth of this node in the tree
   int numChildren;   // number of children, -1 => not yet determined
-  
+
   /* for statistics (if configured via UTS_STAT) */
 #ifdef UTS_STAT
   struct node_t *pp;          // parent pointer
@@ -37,10 +37,10 @@ struct node_t {
 typedef struct node_t Node;
 
 /* Tree type
- *   Trees are generated using a Galton-Watson process, in 
- *   which the branching factor of each node is a random 
+ *   Trees are generated using a Galton-Watson process, in
+ *   which the branching factor of each node is a random
  *   variable.
- *   
+ *
  *   The random variable can follow a binomial distribution
  *   or a geometric distribution.  Hybrid tree are
  *   generated with geometric distributions near the
@@ -53,8 +53,8 @@ typedef enum uts_trees_e    tree_t;
 typedef enum uts_geoshape_e geoshape_t;
 
 /* Strings for the above enums */
-extern char * uts_trees_str[];
-extern char * uts_geoshapes_str[];
+extern const char * uts_trees_str[];
+extern const char * uts_geoshapes_str[];
 
 
 /* Tree  parameters */
@@ -65,7 +65,7 @@ extern int        nonLeafBF;
 extern double     nonLeafProb;
 extern int        gen_mx;
 extern geoshape_t shape_fn;
-extern double     shiftDepth;         
+extern double     shiftDepth;
 
 /* Benchmark parameters */
 extern int    computeGranularity;
