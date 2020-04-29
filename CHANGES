@@ -1,0 +1,3 @@
+- replaced `char *` types of string constants to `const char *`
+- eliminated most global state with an explicit UTSConfig struct that
+contains all parameters and is passed to uts_ functions as necessary.
