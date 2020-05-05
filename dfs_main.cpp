@@ -10,7 +10,7 @@ void impl_abort(int err) {
 }
 
 const char *impl_getName() {
-  return "Sam's mini UTS";
+  return "mini-uts depth-first";
 }
 
 int impl_paramsToStr(char *strBuf, int ind) {

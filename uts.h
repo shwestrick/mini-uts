@@ -1,6 +1,10 @@
 #ifndef _UTS_H
 #define _UTS_H
 
+/* Utility Functions */
+#define max(a,b) (((a) > (b)) ? (a) : (b))
+#define min(a,b) (((a) < (b)) ? (a) : (b))
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -118,10 +122,6 @@ typedef struct uts_config UTSConfig;
 
 /* For stats generation: */
 typedef unsigned long long counter_t;
-
-/* Utility Functions */
-#define max(a,b) (((a) > (b)) ? (a) : (b))
-#define min(a,b) (((a) < (b)) ? (a) : (b))
 
 void   uts_error(char *str);
 void   uts_parseParams(UTSConfig *c, int argc, char **argv);
