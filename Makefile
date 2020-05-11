@@ -5,7 +5,7 @@ OMPFLAGS = -DOPENMP -fopenmp
 CILKFLAGS = -DCILK -fcilkplus
 HGFLAGS = -DHOMEGROWN -pthread
 
-RNGFLAGS = -DBRG_C99_TYPES -DBRG_RNG -lm
+RNGFLAGS = -lm
 
 ifdef CLANG
 CC = clang++
@@ -22,9 +22,9 @@ PFLAGS = $(HGFLAGS)
 else ifdef SERIAL
 CC = g++
 PFLAGS =
-else # default is homegrown
+else # default is cilk
 CC = g++
-PFLAGS = $(HGFLAGS)
+PFLAGS = $(CILKFLAGS)
 endif
 
 dfs: dfs_main.cpp rng/brg_sha1.c uts.c
