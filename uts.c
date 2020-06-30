@@ -277,7 +277,7 @@ void uts_printParams(UTSConfig *c) {
   if (c->verbose > 0) {
     ind = uts_paramsToStr(c, strBuf, ind);
     ind = impl_paramsToStr(strBuf, ind);
-    printf("%s\n",strBuf);
+    fprintf(stderr, "%s\n",strBuf);
   }
 }
 
@@ -379,8 +379,8 @@ void uts_showStats(UTSConfig *c, int nPes, int chunkSize, double walltime, count
 
   // summarize execution info for human consumption
   else {
-    printf("Tree size = %llu, tree depth = %llu, num leaves = %llu (%.2f%%)\n", nNodes, maxDepth, nLeaves, nLeaves/(float)nNodes*100.0);
-    printf("Wallclock time = %.3f sec, performance = %.0f nodes/sec (%.0f nodes/sec per PE)\n\n",
+    fprintf(stderr,"Tree size = %llu, tree depth = %llu, num leaves = %llu (%.2f%%)\n", nNodes, maxDepth, nLeaves, nLeaves/(float)nNodes*100.0);
+    fprintf(stderr,"Wallclock time = %.3f sec, performance = %.0f nodes/sec (%.0f nodes/sec per PE)\n\n",
         walltime, (nNodes / walltime), (nNodes / walltime / nPes));
   }
 }
